@@ -59,7 +59,7 @@ namespace Core.Main
 
                 using (var wc = new WebClient())
                 {
-                    var updates = JsonConvert.DeserializeObject(await wc.DownloadStringTaskAsync(_websiteUrl + "/Patches/Info.json"), typeof(UpdateInfoModel)) as UpdateInfoModel;
+                    var updates = JsonConvert.DeserializeObject(await wc.DownloadStringTaskAsync(_websiteUrl + "/Info.json"), typeof(UpdateInfoModel)) as UpdateInfoModel;
 
                     var currentPatch = updates.Patches.FirstOrDefault(q => q.Version == _updaterConfig.VersionProvider.GetVersion());
 
@@ -126,7 +126,7 @@ namespace Core.Main
 
                     wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
 
-                    await wc.DownloadFileTaskAsync(_websiteUrl + $"/Patches/{patchInfo.Version}.zip", patchZipFile.FullName);
+                    await wc.DownloadFileTaskAsync(_websiteUrl + $"/{patchInfo.Version}.zip", patchZipFile.FullName);
                 }
 
                 CurrentState = UpdateState.ApplyingPatch;

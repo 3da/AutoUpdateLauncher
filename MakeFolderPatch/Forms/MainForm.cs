@@ -39,7 +39,7 @@ namespace MakeFolderPatch.Forms
 
         private void buttonCreate_Click(object sender, EventArgs e)
         {
-            SaveSettings(new Settings()
+            SaveSettings(new Settings
             {
                 Version = textBoxVersion.Text,
                 PatchDirectory = textBoxPatchDir.Text,

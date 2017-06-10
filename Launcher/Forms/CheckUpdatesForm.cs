@@ -1,18 +1,24 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Core;
 using Core.Main;
 using Core.Models;
+using Newtonsoft.Json;
 
 namespace Launcher.Forms
 {
     public partial class CheckUpdatesForm : Form
     {
-        Updater updater;
+        Updater _updater;
 
         System.ComponentModel.ComponentResourceManager _resources;
+
+        private string ConfigFileName => "Config.json";
+
+        Config _launcherConfig;
 
         public CheckUpdatesForm()
         {
@@ -26,34 +32,48 @@ namespace Launcher.Forms
 
         }
 
+
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
 
+            if (!File.Exists(ConfigFileName))
+            {
+                MessageBox.Show($"{ConfigFileName} not found in working directory");
+                Close();
+                return;
+            }
 
+            _launcherConfig = JsonConvert.DeserializeObject<Config>(File.ReadAllText(ConfigFileName));
 
-            //var workingDir = @"D:\Projects\OldBuild";
+            if (!string.IsNullOrWhiteSpace(_launcherConfig.AppName))
+            Text = _launcherConfig.AppName + " - " + Text;
 
             var config = new UpdaterConfig
             {
-                WebsiteUrl = "http://localhost:50826",
-                VersionProvider = new DefaultVersionProvider()
-                //WebsiteUrl = "https://itvtomske.ru/update",
-
+                VersionProvider = new DefaultVersionProvider(),
+                WebsiteUrl = _launcherConfig.WebsiteUrl
             };
 
-            updater = new Updater(config);
+            if (!string.IsNullOrWhiteSpace(_launcherConfig.WorkingDir))
+                config.WorkingDir = _launcherConfig.WorkingDir;
+
+            if (!string.IsNullOrWhiteSpace(_launcherConfig.UpdateTempDirectory))
+                config.UpdateTempDirectory = _launcherConfig.UpdateTempDirectory;
+
+            _updater = new Updater(config);
 
 
-            updater.SearchingPatchCompleted += Updater_SearchingPatchCompleted;
-            updater.SearchingPatchFailed += Updater_SearchingPatchFailed;
+            _updater.SearchingPatchCompleted += Updater_SearchingPatchCompleted;
+            _updater.SearchingPatchFailed += Updater_SearchingPatchFailed;
 
-            updater.PatchingCompleted += Updater_PatchingCompleted;
-            updater.PatchingFailed += Updater_PatchingFailed;
+            _updater.PatchingCompleted += Updater_PatchingCompleted;
+            _updater.PatchingFailed += Updater_PatchingFailed;
 
-            updater.UpdateProgress += Updater_UpdateProgress;
+            _updater.UpdateProgress += Updater_UpdateProgress;
 
-            Task.Run(() => updater.CheckForUpdates());
+            Task.Run(() => _updater.CheckForUpdates());
         }
 
         private async void Updater_PatchingFailed(Exception exception)
@@ -68,7 +88,7 @@ namespace Launcher.Forms
 
             Thread.Sleep(1000);
 
-            await updater.CheckForUpdates();
+            await _updater.CheckForUpdates();
         }
 
         private async void Updater_PatchingCompleted(PatchModel patch)
@@ -77,7 +97,7 @@ namespace Launcher.Forms
             {
                 panelUpdating.Hide();
             }));
-            await updater.CheckForUpdates();
+            await _updater.CheckForUpdates();
         }
 
         private void Updater_SearchingPatchFailed(Exception exception)
@@ -91,6 +111,11 @@ namespace Launcher.Forms
                 }));
 
             }
+        }
+
+        private void RunApp()
+        {
+            System.Diagnostics.Process.Start(_launcherConfig.RunFileName);
         }
 
         private async void Updater_SearchingPatchCompleted(VersionModel newVersion)
@@ -109,11 +134,11 @@ namespace Launcher.Forms
                     labelUpdateState.Text = "";
                 }));
 
-                await updater.ApplyPatch(newVersion);
+                await _updater.ApplyPatch(newVersion);
             }
             else
             {
-                System.Diagnostics.Process.Start("game.exe");
+                RunApp();
                 BeginInvoke(new MethodInvoker(Close));
             }
         }
@@ -162,7 +187,7 @@ namespace Launcher.Forms
 
             if (result == DialogResult.Yes)
             {
-                updater.Rollback();
+                _updater.Rollback();
                 Close();
             }
         }
