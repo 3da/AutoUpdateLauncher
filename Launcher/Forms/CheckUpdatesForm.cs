@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Core;
 using Core.Main;
 using Core.Models;
+using Launcher.Properties;
 using Newtonsoft.Json;
 
 namespace Launcher.Forms
@@ -13,8 +16,6 @@ namespace Launcher.Forms
     public partial class CheckUpdatesForm : Form
     {
         Updater _updater;
-
-        System.ComponentModel.ComponentResourceManager _resources;
 
         private string ConfigFileName => "Config.json";
 
@@ -25,13 +26,19 @@ namespace Launcher.Forms
             InitializeComponent();
 
 
-            _resources = new System.ComponentModel.ComponentResourceManager(typeof(CheckUpdatesForm));
-
-
+            labelTop.Text = Resources.Searching_updates;
+            Text = Resources.Checking_updates;
+            labelUpdating.Text = Resources.Updating_to_version;
+            buttonClose.Text = Resources.Close;
 
 
         }
 
+        public sealed override string Text
+        {
+            get => base.Text;
+            set => base.Text = value;
+        }
 
 
         protected override void OnLoad(EventArgs e)
@@ -76,19 +83,21 @@ namespace Launcher.Forms
             Task.Run(() => _updater.CheckForUpdates());
         }
 
-        private async void Updater_PatchingFailed(Exception exception)
+        private void Updater_PatchingFailed(Exception exception)
         {
             BeginInvoke(new MethodInvoker(() =>
             {
                 MessageBox.Show(exception.ToString());
 
                 panelUpdating.Hide();
+
+                Thread.Sleep(1000);
+
+                Task.Run(() => _updater.CheckForUpdates());
             }));
 
 
-            Thread.Sleep(1000);
 
-            await _updater.CheckForUpdates();
         }
 
         private async void Updater_PatchingCompleted(PatchModel patch)
@@ -169,8 +178,8 @@ namespace Launcher.Forms
                     progressBarUpdating.Value = Convert.ToInt32(completedKibs);
 
                     labelUpdateState.Text = model.State == UpdateState.DownloadingPatch
-                        ? "Загрузка данных"
-                        : "Установка обновлений";
+                        ? Resources.Loading_data
+                        : Resources.Installing_Updates;
                 }));
             }
 
@@ -181,8 +190,8 @@ namespace Launcher.Forms
         private void buttonClose_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show(
-                _resources.GetString("Close_window_alert_text"),
-                _resources.GetString("buttonClose.Text"),
+                Resources.Close_window_alert_text,
+                Resources.Close,
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
 
             if (result == DialogResult.Yes)

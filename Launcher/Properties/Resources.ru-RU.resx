@@ -117,20 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="labelUpdating.Size" type="System.Drawing.Size, System.Drawing">
-    <value>147, 21</value>
+  <data name="Checking_updates" xml:space="preserve">
+    <value>Проверка обновлений</value>
   </data>
-  <data name="labelUpdating.Text" xml:space="preserve">
-    <value>Updating to version</value>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
   </data>
-  <data name="labelTop.Text" xml:space="preserve">
-    <value>Searching updates</value>
+  <data name="Close_window_alert_text" xml:space="preserve">
+    <value>Отмена обновлений не гарантирует работоспособность программы. Вы хотите отменить обновление и закрыть окно?</value>
   </data>
-  <data name="buttonClose.Text" xml:space="preserve">
-    <value>Close</value>
+  <data name="Installing_Updates" xml:space="preserve">
+    <value>Установка обновлений</value>
   </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>Checking updates</value>
+  <data name="Loading_data" xml:space="preserve">
+    <value>Загрузка данных</value>
+  </data>
+  <data name="Searching_updates" xml:space="preserve">
+    <value>Поиск обновлений</value>
+  </data>
+  <data name="Updating_to_version" xml:space="preserve">
+    <value>Обновление до версии</value>
   </data>
 </root>
